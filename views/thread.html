@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Thread</title>
+</head>
+<body>
+  <h1>Thread en el board: <span id="boardTitle"></span></h1>
+
+  <h2>Responder a este thread</h2>
+  <form id="new-reply" method="POST">
+    <label>Texto:</label>
+    <input type="text" name="text" required>
+    <label>Contraseña:</label>
+    <input type="text" name="delete_password" required>
+    <input type="hidden" name="thread_id" id="thread_id">
+    <button type="submit">Responder</button>
+  </form>
+
+  <h2>Acciones</h2>
+  <form id="report-thread" method="POST">
+    <input type="hidden" name="thread_id" id="report_thread_id">
+    <button type="submit">Reportar thread</button>
+  </form>
+
+  <form id="delete-thread" method="POST">
+    <input type="hidden" name="thread_id" id="delete_thread_id">
+    <label>Contraseña:</label>
+    <input type="text" name="delete_password" required>
+    <button type="submit">Eliminar thread</button>
+  </form>
+
+  <h2>Acciones en replies</h2>
+  <form id="report-reply" method="POST">
+    <label>ID reply:</label>
+    <input type="text" name="reply_id" required>
+    <input type="hidden" name="thread_id" id="report_reply_thread_id">
+    <button type="submit">Reportar reply</button>
+  </form>
+
+  <form id="delete-reply" method="POST">
+    <label>ID reply:</label>
+    <input type="text" name="reply_id" required>
+    <label>Contraseña:</label>
+    <input type="text" name="delete_password" required>
+    <input type="hidden" name="thread_id" id="delete_reply_thread_id">
+    <button type="submit">Eliminar reply</button>
+  </form>
+
+  <script>
+    // Detectar board y thread desde la URL
+    const parts = window.location.pathname.split('/');
+    const board = parts[2];
+    const thread_id = parts[3];
+
+    document.getElementById("boardTitle").innerText = board;
+
+    // Form actions dinámicos
+    document.getElementById("new-reply").action = "/api/replies/" + board;
+    document.getElementById("report-thread").action = "/api/threads/" + board + "?_method=PUT";
+    document.getElementById("delete-thread").action = "/api/threads/" + board + "?_method=DELETE";
+    document.getElementById("report-reply").action = "/api/replies/" + board + "?_method=PUT";
+    document.getElementById("delete-reply").action = "/api/replies/" + board + "?_method=DELETE";
+
+    // Insertar thread_id oculto en los formularios
+    document.getElementById("thread_id").value = thread_id;
+    document.getElementById("report_thread_id").value = thread_id;
+    document.getElementById("delete_thread_id").value = thread_id;
+    document.getElementById("report_reply_thread_id").value = thread_id;
+    document.getElementById("delete_reply_thread_id").value = thread_id;
+  </script>
+</body>
+</html>

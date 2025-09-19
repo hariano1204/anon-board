@@ -1,19 +1,19 @@
-
 require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const helmet = require('helmet');
+const path = require('path');
 
 const apiRoutes = require('./routes/api'); // ✅ importa las rutas
 
 const app = express();
 
 // Middlewares de seguridad
-app.use(helmet()); // configuración base
-app.use(helmet.frameguard({ action: 'sameorigin' }));       // ✅ test 2
-app.use(helmet.dnsPrefetchControl({ allow: false }));       // ✅ test 3
-app.use(helmet.referrerPolicy({ policy: 'same-origin' }));  // ✅ test 4
+app.use(helmet());
+app.use(helmet.dnsPrefetchControl({ allow: false }));
+app.use(helmet.frameguard({ action: 'sameorigin' }));
+app.use(helmet.referrerPolicy({ policy: 'same-origin' }));
 
 app.use(cors());
 app.use(express.json());
@@ -27,9 +27,14 @@ mongoose.connect(process.env.MONGO_URI, {})
 // Rutas de la API
 app.use('/api', apiRoutes);
 
-// Root de prueba
+// ✅ Servir index.html en la raíz
 app.get('/', (req, res) => {
-  res.send('Servidor funcionando 🚀');
+  res.sendFile(path.join(__dirname, 'views', 'index.html'));
+});
+
+// ✅ Servir la vista de cada board (/b/general/, etc.)
+app.get('/b/:board/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'board.html'));
 });
 
 // Levantar servidor

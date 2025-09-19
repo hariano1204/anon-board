@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Anonymous Message Board</title>
+</head>
+<body>
+  <h1>Board: <span id="boardTitle"></span></h1>
+
+  <h2>Create new thread</h2>
+  <form id="new-thread" method="post">
+    <input type="text" name="text" placeholder="Thread text" required>
+    <input type="text" name="delete_password" placeholder="Password" required>
+    <button type="submit">Create</button>
+  </form>
+
+  <h2>Create reply</h2>
+  <form id="new-reply" method="post">
+    <input type="text" name="thread_id" placeholder="Thread ID" required>
+    <input type="text" name="text" placeholder="Reply text" required>
+    <input type="text" name="delete_password" placeholder="Password" required>
+    <button type="submit">Reply</button>
+  </form>
+
+  <h2>Report thread</h2>
+  <form id="report-thread" method="post">
+    <input type="hidden" name="_method" value="PUT">
+    <input type="text" name="thread_id" placeholder="Thread ID" required>
+    <button type="submit">Report</button>
+  </form>
+
+  <h2>Delete thread</h2>
+  <form id="delete-thread" method="post">
+    <input type="hidden" name="_method" value="DELETE">
+    <input type="text" name="thread_id" placeholder="Thread ID" required>
+    <input type="text" name="delete_password" placeholder="Password" required>
+    <button type="submit">Delete</button>
+  </form>
+
+  <h2>Report reply</h2>
+  <form id="report-reply" method="post">
+    <input type="hidden" name="_method" value="PUT">
+    <input type="text" name="thread_id" placeholder="Thread ID" required>
+    <input type="text" name="reply_id" placeholder="Reply ID" required>
+    <button type="submit">Report</button>
+  </form>
+
+  <h2>Delete reply</h2>
+  <form id="delete-reply" method="post">
+    <input type="hidden" name="_method" value="DELETE">
+    <input type="text" name="thread_id" placeholder="Thread ID" required>
+    <input type="text" name="reply_id" placeholder="Reply ID" required>
+    <input type="text" name="delete_password" placeholder="Password" required>
+    <button type="submit">Delete</button>
+  </form>
+
+  <script>
+    const board = window.location.pathname.split('/')[2];
+    document.getElementById("boardTitle").innerText = board;
+
+    // Set correct actions
+    document.getElementById("new-thread").action = "/api/threads/" + board;
+    document.getElementById("new-reply").action = "/api/replies/" + board;
+    document.getElementById("report-thread").action = "/api/threads/" + board;
+    document.getElementById("delete-thread").action = "/api/threads/" + board;
+    document.getElementById("report-reply").action = "/api/replies/" + board;
+    document.getElementById("delete-reply").action = "/api/replies/" + board;
+  </script>
+</body>
+</html>
