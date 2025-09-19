@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>IS_2 - Anonymous Message Board</title>
+  </head>
+  <body>
+    <h1>IS_2 - Anonymous Message Board</h1>
+    <a href="/b/general/">Go to testing '/b/general/' board</a>
+    <hr>
+
+    <h2>API Tests:</h2>
+
+    <h3>New thread (POST /api/threads/:board)</h3>
+    <form action="/api/threads/test" method="post">
+      <input type="text" name="board" placeholder="board"><br>
+      <textarea name="text" placeholder="Thread text..."></textarea><br>
+      <input type="text" name="delete_password" placeholder="password to delete"><br>
+      <input type="submit" value="Submit">
+    </form>
+
+    <h3>Report thread (PUT /api/threads/:board)</h3>
+    <form action="/api/threads/test" method="post">
+      <input type="text" name="board" placeholder="board"><br>
+      <input type="text" name="thread_id" placeholder="id to report"><br>
+      <input type="submit" value="Submit">
+    </form>
+
+    <h3>Delete thread (DELETE /api/threads/:board)</h3>
+    <form action="/api/threads/test" method="post">
+      <input type="text" name="board" placeholder="board"><br>
+      <input type="text" name="thread_id" placeholder="id to delete"><br>
+      <input type="text" name="delete_password" placeholder="password"><br>
+      <input type="submit" value="Submit">
+    </form>
+
+    <h3>New reply (POST /api/replies/:board)</h3>
+    <form action="/api/replies/test" method="post">
+      <input type="text" name="board" placeholder="board"><br>
+      <input type="text" name="thread_id" placeholder="thread id"><br>
+      <textarea name="text" placeholder="Thread text..."></textarea><br>
+      <input type="text" name="delete_password" placeholder="password to delete"><br>
+      <input type="submit" value="Submit">
+    </form>
+
+    <h3>Report reply (PUT /api/replies/:board)</h3>
+    <form action="/api/replies/test" method="post">
+      <input type="text" name="board" placeholder="board"><br>
+      <input type="text" name="thread_id" placeholder="thread id"><br>
+      <input type="text" name="reply_id" placeholder="id to report"><br>
+      <input type="submit" value="Submit">
+    </form>
+
+    <h3>Delete reply (DELETE /api/replies/:board)</h3>
+    <form action="/api/replies/test" method="post">
+      <input type="text" name="board" placeholder="board"><br>
+      <input type="text" name="thread_id" placeholder="thread id"><br>
+      <input type="text" name="reply_id" placeholder="id to delete"><br>
+      <input type="text" name="delete_password" placeholder="password"><br>
+      <input type="submit" value="Submit">
+    </form>
+  </body>
+</html>
