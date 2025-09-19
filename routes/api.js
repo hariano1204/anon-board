@@ -3,24 +3,33 @@ const router = express.Router();
 const Thread = require('../models/Thread');
 const { ObjectId } = require('mongodb');
 
-// Crear thread
+// ✅ Crear un nuevo hilo
 router.post('/threads/:board', async (req, res) => {
-  const { text, delete_password } = req.body;
-  const board = req.params.board;
+  try {
+    const { text, delete_password } = req.body;
+    const board = req.params.board;
 
-  const thread = new Thread({
-    board,
-    text,
-    delete_password,
-    created_on: new Date(),
-    bumped_on: new Date(),
-    reported: false,
-    replies: []
-  });
+    const thread = new Thread({
+      board,
+      text,
+      delete_password,
+      created_on: new Date(),
+      bumped_on: new Date(),
+      reported: false,
+      replies: []
+    });
 
-  await thread.save();
-  return res.redirect(`/b/${board}/`);
+    await thread.save();
+    return res.json(thread);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Error saving thread');
+  }
 });
+
+// (Aquí van tus demás rutas: GET, PUT, DELETE para threads y replies...)
+
+module.exports = router;
 
 // Ver 10 threads
 router.get('/threads/:board', async (req, res) => {

@@ -1,41 +1,34 @@
+require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
-const helmet = require('helmet');
 const cors = require('cors');
+const helmet = require('helmet');
 
-require('dotenv').config();
+const apiRoutes = require('./routes/api'); // ✅ importa las rutas
 
 const app = express();
-const apiRoutes = require('./routes/api');
 
-// ✅ Middleware de seguridad que FCC valida
-app.use(
-  helmet({
-    frameguard: { action: 'sameorigin' },      // solo iframes propios
-    dnsPrefetchControl: { allow: false },      // no permitir prefetch
-    referrerPolicy: { policy: 'same-origin' }  // referrer solo mismo dominio
-  })
-);
-
+// Middlewares
+app.use(helmet());
 app.use(cors());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(bodyParser.json());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
-// ✅ Montar rutas de la API en /api
-app.use('/api', apiRoutes);
-
-// ✅ Conexión a MongoDB Atlas
-mongoose
-  .connect(process.env.MONGO_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
+// Conexión a MongoDB Atlas
+mongoose.connect(process.env.MONGO_URI, {})
   .then(() => console.log('✅ Conectado a MongoDB'))
-  .catch(err => console.error(err));
+  .catch(err => console.error('❌ Error al conectar a MongoDB:', err));
 
-// ✅ Iniciar servidor
+// Rutas de la API
+app.use('/api', apiRoutes); // ✅ monta las rutas bajo /api
+
+// Root de prueba
+app.get('/', (req, res) => {
+  res.send('Servidor funcionando 🚀');
+});
+
+// Levantar servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () =>
-  console.log(`🚀 Servidor ejecutándose en el puerto ${PORT}`)
-);
+app.listen(PORT, () => {
+  console.log(`🚀 Servidor ejecutándose en el puerto ${PORT}`);
+});
