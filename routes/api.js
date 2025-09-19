@@ -29,7 +29,6 @@ router.post('/threads/:board', async (req, res) => {
 
 // (Aquí van tus demás rutas: GET, PUT, DELETE para threads y replies...)
 
-module.exports = router;
 
 // Ver 10 threads
 router.get('/threads/:board', async (req, res) => {
