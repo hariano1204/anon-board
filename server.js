@@ -9,19 +9,20 @@ const apiRoutes = require('./routes/api');
 
 const app = express();
 
-// ✅ Configuración EXACTA para pasar los tests de FCC
-// Forzamos que siempre aparezca "X-Powered-By: Express"
+// ✅ Seguridad con Helmet
+app.use(helmet({
+  hidePoweredBy: false // 👈 FCC espera ver "X-Powered-By: Express"
+}));
+
+// ✅ Forzar cabeceras que FreeCodeCamp testea
 app.use((req, res, next) => {
-  res.setHeader("X-Powered-By", "Express");
+  res.setHeader("X-Frame-Options", "SAMEORIGIN");    // Error 2
+  res.setHeader("X-DNS-Prefetch-Control", "off");    // Error 3
+  res.setHeader("Referrer-Policy", "same-origin");   // Error 4
   next();
 });
 
-// Solo los middlewares que pide FCC
-app.use(helmet.dnsPrefetchControl({ allow: false }));       // ❌ Error 3 → arreglado
-app.use(helmet.frameguard({ action: 'sameorigin' }));       // ❌ Error 2 → arreglado
-app.use(helmet.referrerPolicy({ policy: 'same-origin' }));  // ❌ Error 4 → arreglado
-
-// Middlewares básicos
+// ✅ Middlewares
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -34,17 +35,17 @@ mongoose.connect(process.env.MONGO_URI, {})
 // ✅ Rutas de la API
 app.use('/api', apiRoutes);
 
-// ✅ Servir la página principal
+// ✅ Servir index.html en la raíz
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
 
-// ✅ Servir boards (/b/general/, etc.)
+// ✅ Servir la vista de cada board (/b/general/, etc.)
 app.get('/b/:board/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'board.html'));
 });
 
-// ✅ Servir un thread específico (/b/:board/:threadid/)
+// ✅ Servir la vista de un thread (/b/:board/:threadid/)
 app.get('/b/:board/:threadid', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'thread.html'));
 });
