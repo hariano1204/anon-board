@@ -9,12 +9,15 @@ const apiRoutes = require('./routes/api'); // ✅ importa las rutas
 
 const app = express();
 
-// Middlewares de seguridad
-app.use(helmet());
-app.use(helmet.dnsPrefetchControl({ allow: false }));
-app.use(helmet.frameguard({ action: 'sameorigin' }));
-app.use(helmet.referrerPolicy({ policy: 'same-origin' }));
+// ✅ Configuración de headers de seguridad según FCC
+app.use(helmet({
+  hidePoweredBy: false // 👈 necesario para que FCC vea "X-Powered-By: Express"
+}));
+app.use(helmet.dnsPrefetchControl({ allow: false }));   // 👈 Error 3
+app.use(helmet.frameguard({ action: 'sameorigin' }));   // 👈 Error 2
+app.use(helmet.referrerPolicy({ policy: 'same-origin' })); // 👈 Error 4
 
+// Middlewares básicos
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -35,6 +38,11 @@ app.get('/', (req, res) => {
 // ✅ Servir la vista de cada board (/b/general/, etc.)
 app.get('/b/:board/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'board.html'));
+});
+
+// ✅ Servir la vista de un thread (/b/:board/:threadid/)
+app.get('/b/:board/:threadid', (req, res) => {
+  res.sendFile(path.join(__dirname, 'views', 'thread.html'));
 });
 
 // Levantar servidor
