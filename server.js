@@ -5,49 +5,52 @@ const cors = require('cors');
 const helmet = require('helmet');
 const path = require('path');
 
-const apiRoutes = require('./routes/api');
+const apiRoutes = require('./routes/api'); // ✅ rutas de la API
 
 const app = express();
 
-// 🔧 Fuerza X-Powered-By para que FCC no se confunda (algunos proxies lo quitan)
-app.use((req, res, next) => {
-  res.setHeader('X-Powered-By', 'Express');
-  next();
-});
+// ✅ Configuración de seguridad (headers)
+app.use(
+  helmet({
+    hidePoweredBy: false // 👈 dejamos el header X-Powered-By para FCC
+  })
+);
+app.use(helmet.dnsPrefetchControl({ allow: false }));   // ❌ No prefetch DNS
+app.use(helmet.frameguard({ action: 'sameorigin' }));   // ❌ Solo iframes propios
+app.use(helmet.referrerPolicy({ policy: 'same-origin' })); // ❌ Referrer solo en el mismo origen
 
-// 🔐 Headers EXACTOS que FCC testea
-app.use(helmet.frameguard({ action: 'sameorigin' }));          // X-Frame-Options: SAMEORIGIN  (Test 2)
-app.use(helmet.dnsPrefetchControl({ allow: false }));          // X-DNS-Prefetch-Control: off (Test 3)
-app.use(helmet.referrerPolicy({ policy: 'same-origin' }));     // Referrer-Policy: same-origin (Test 4)
-
-// Básicos
+// Middlewares básicos
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// 📦 estáticos como en la demo FCC
+// ✅ Servir archivos estáticos (CSS, imágenes, etc.)
 app.use('/public', express.static(path.join(__dirname, 'public')));
 
-// DB
+// Conexión a MongoDB Atlas
 mongoose.connect(process.env.MONGO_URI, {})
   .then(() => console.log('✅ Conectado a MongoDB'))
   .catch(err => console.error('❌ Error al conectar a MongoDB:', err));
 
-// API
+// Rutas de la API
 app.use('/api', apiRoutes);
 
-// Vistas
+// ✅ Servir la página principal
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'index.html'));
 });
+
+// ✅ Servir la vista de cada board (/b/general/, etc.)
 app.get('/b/:board/', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'board.html'));
 });
+
+// ✅ Servir la vista de un thread (/b/:board/:threadid/)
 app.get('/b/:board/:threadid', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'thread.html'));
 });
 
-// Server
+// Levantar servidor
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`🚀 Servidor ejecutándose en el puerto ${PORT}`);
