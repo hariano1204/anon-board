@@ -7,34 +7,37 @@ const path = require("path");
 
 const apiRoutes = require("./routes/api.js");
 const fccTestingRoutes = require("./routes/fcctesting.js");
-const router = express.Router();
 
-router.use("/public", express.static(path.join(__dirname, "/public")));
-router.use(cors({ origin: "*" })); // For FCC testing purposes only
-router.use(bodyParser.json());
-router.use(bodyParser.urlencoded({ extended: true }));
+const app = express();
 
-router.route("/b/:board/").get(function (req, res) {
+// Middlewares
+app.use("/public", express.static(path.join(__dirname, "/public")));
+app.use(cors({ origin: "*" })); // For FCC testing purposes only
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Views
+app.route("/b/:board/").get((req, res) => {
   res.sendFile(path.join(__dirname, "/views/board.html"));
 });
 
-router.route("/b/:board/:threadid").get(function (req, res) {
+app.route("/b/:board/:threadid").get((req, res) => {
   res.sendFile(path.join(__dirname, "/views/thread.html"));
 });
 
-router.route("/").get(function (req, res) {
+app.route("/").get((req, res) => {
   res.sendFile(path.join(__dirname, "/views/index.html"));
 });
 
-// For FCC testing purposes
-fccTestingRoutes(router);
+// FCC testing routes
+fccTestingRoutes(app);
 
-// Routing for API
-apiRoutes(router);
+// API routes
+apiRoutes(app);
 
-// 404 Not Found Middleware
-router.use(function (req, res, next) {
+// 404
+app.use((req, res) => {
   res.status(404).type("text").send("Not Found");
 });
 
-module.exports = router;
+module.exports = app;
