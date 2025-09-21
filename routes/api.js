@@ -20,7 +20,8 @@ router.post('/threads/:board', async (req, res) => {
     });
 
     await thread.save();
-    return res.json(thread);
+    return res.redirect(`/b/${board}/`);
+
   } catch (err) {
     console.error(err);
     res.status(500).send('Error saving thread');
