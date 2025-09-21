@@ -31,7 +31,7 @@ app.route("/").get((req, res) => {
 fccTestingRoutes(app);
 
 // API routes
-apiRoutes(app);
+app.use("/api", apiRoutes);
 
 // Middleware 404
 app.use((req, res) => {
