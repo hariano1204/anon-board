@@ -1,8 +1,9 @@
 "use strict";
 require("dotenv").config();
 const mongoose = require("mongoose");
-const app = require("./index.js"); // ahora sí es la app
+const app = require("./index.js");
 
+// Puerto
 const PORT = process.env.PORT || 3000;
 
 // Conexión a MongoDB y arranque del servidor
@@ -19,4 +20,5 @@ mongoose
   })
   .catch((err) => console.error("❌ Error conectando a MongoDB:", err));
 
+// Exporta app para los tests FCC
 module.exports = app;
