@@ -10,13 +10,11 @@ const fccTestingRoutes = require("./routes/fcctesting.js");
 
 const app = express();
 
-// Middlewares
 app.use("/public", express.static(path.join(__dirname, "/public")));
 app.use(cors({ origin: "*" })); // For FCC testing purposes only
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-// Views
 app.route("/b/:board/").get((req, res) => {
   res.sendFile(path.join(__dirname, "/views/board.html"));
 });
@@ -29,13 +27,13 @@ app.route("/").get((req, res) => {
   res.sendFile(path.join(__dirname, "/views/index.html"));
 });
 
-// FCC testing routes
+// For FCC testing purposes
 fccTestingRoutes(app);
 
-// API routes
+// Routing for API
 apiRoutes(app);
 
-// 404
+// 404 Not Found Middleware
 app.use((req, res) => {
   res.status(404).type("text").send("Not Found");
 });
