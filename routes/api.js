@@ -1,142 +1,68 @@
-const express = require('express');
-const router = express.Router();
-const Thread = require('../models/Thread');
-const { ObjectId } = require('mongodb');
+"use strict";
 
-// ✅ Crear un nuevo hilo
-router.post('/threads/:board', async (req, res) => {
-  try {
-    const { text, delete_password } = req.body;
-    const board = req.params.board;
+const ThreadController = require("../threadController");
+const ReplyController = require("../replyController");
 
-    const thread = new Thread({
-      board,
-      text,
-      delete_password,
-      created_on: new Date(),
-      bumped_on: new Date(),
-      reported: false,
-      replies: []
+module.exports = function (app) {
+  // ========================
+  // THREADS
+  // ========================
+  app.route("/api/threads/:board")
+    // Crear un nuevo thread
+    .post(async (req, res) => {
+      const board = req.params.board;
+      const result = await ThreadController.createThread(board, req.body);
+      // FCC espera redirect a la vista del board
+      return res.redirect(`/b/${board}/`);
+    })
+    // Ver 10 threads
+    .get(async (req, res) => {
+      const board = req.params.board;
+      const result = await ThreadController.getThreads(board);
+      return res.json(result);
+    })
+    // Borrar un thread
+    .delete(async (req, res) => {
+      const board = req.params.board;
+      const result = await ThreadController.deleteThread(board, req.body);
+      return res.send(result);
+    })
+    // Reportar un thread
+    .put(async (req, res) => {
+      const board = req.params.board;
+      const result = await ThreadController.reportThread(board, req.body);
+      return res.send(result);
     });
 
-    await thread.save();
-    return res.redirect(`/b/${board}/`);
-
-  } catch (err) {
-    console.error(err);
-    res.status(500).send('Error saving thread');
-  }
-});
-
-// (Aquí van tus demás rutas: GET, PUT, DELETE para threads y replies...)
-
-
-// Ver 10 threads
-router.get('/threads/:board', async (req, res) => {
-  const board = req.params.board;
-  const threads = await Thread.find({ board })
-    .sort({ bumped_on: -1 })
-    .limit(10)
-    .lean();
-
-  const sanitized = threads.map(th => ({
-    _id: th._id,
-    text: th.text,
-    created_on: th.created_on,
-    bumped_on: th.bumped_on,
-    replycount: th.replies.length,
-    replies: th.replies.slice(-3).map(r => ({
-      _id: r._id,
-      text: r.text,
-      created_on: r.created_on
-    }))
-  }));
-
-  res.json(sanitized);
-});
-
-// Reportar thread
-router.put('/threads/:board', async (req, res) => {
-  const { thread_id } = req.body;
-  await Thread.findByIdAndUpdate(thread_id, { reported: true });
-  res.send('reported');
-});
-
-// Borrar thread
-router.delete('/threads/:board', async (req, res) => {
-  const { thread_id, delete_password } = req.body;
-  const thread = await Thread.findById(thread_id);
-  if (!thread) return res.send('not found');
-  if (thread.delete_password !== delete_password) return res.send('incorrect password');
-  await Thread.findByIdAndDelete(thread_id);
-  res.send('success');
-});
-
-// Crear reply
-router.post('/replies/:board', async (req, res) => {
-  const { text, delete_password, thread_id } = req.body;
-  const reply = {
-    _id: new ObjectId(),
-    text,
-    delete_password,
-    created_on: new Date(),
-    reported: false
-  };
-
-  const updatedThread = await Thread.findByIdAndUpdate(
-    thread_id,
-    { $set: { bumped_on: new Date() }, $push: { replies: reply } },
-    { new: true }
-  );
-
-  if (!updatedThread) return res.send('thread not found');
-  return res.redirect(`/b/${req.params.board}/${thread_id}/`);
-});
-
-// Ver replies de un thread
-router.get('/replies/:board', async (req, res) => {
-  const { thread_id } = req.query;
-  const thread = await Thread.findById(thread_id).lean();
-  if (!thread) return res.send('not found');
-
-  const sanitized = {
-    _id: thread._id,
-    text: thread.text,
-    created_on: thread.created_on,
-    bumped_on: thread.bumped_on,
-    replies: thread.replies.map(r => ({
-      _id: r._id,
-      text: r.text,
-      created_on: r.created_on
-    }))
-  };
-
-  res.json(sanitized);
-});
-
-// Reportar reply
-router.put('/replies/:board', async (req, res) => {
-  const { thread_id, reply_id } = req.body;
-  const thread = await Thread.findById(thread_id);
-  if (!thread) return res.send('not found');
-  const reply = thread.replies.id(reply_id);
-  if (!reply) return res.send('not found');
-  reply.reported = true;
-  await thread.save();
-  res.send('reported');
-});
-
-// Borrar reply
-router.delete('/replies/:board', async (req, res) => {
-  const { thread_id, reply_id, delete_password } = req.body;
-  const thread = await Thread.findById(thread_id);
-  if (!thread) return res.send('not found');
-  const reply = thread.replies.id(reply_id);
-  if (!reply) return res.send('not found');
-  if (reply.delete_password !== delete_password) return res.send('incorrect password');
-  reply.text = '[deleted]';
-  await thread.save();
-  res.send('success');
-});
-
-module.exports = router;
+  // ========================
+  // REPLIES
+  // ========================
+  app.route("/api/replies/:board")
+    // Crear un nuevo reply
+    .post(async (req, res) => {
+      const board = req.params.board;
+      const { thread_id } = req.body;
+      await ReplyController.createReply(board, req.body);
+      // FCC espera redirect al thread
+      return res.redirect(`/b/${board}/${thread_id}/`);
+    })
+    // Ver replies de un thread
+    .get(async (req, res) => {
+      const board = req.params.board;
+      const { thread_id } = req.query;
+      const result = await ReplyController.getReplies(board, thread_id);
+      return res.json(result);
+    })
+    // Borrar un reply
+    .delete(async (req, res) => {
+      const board = req.params.board;
+      const result = await ReplyController.deleteReply(board, req.body);
+      return res.send(result);
+    })
+    // Reportar un reply
+    .put(async (req, res) => {
+      const board = req.params.board;
+      const result = await ReplyController.reportReply(board, req.body);
+      return res.send(result);
+    });
+};
