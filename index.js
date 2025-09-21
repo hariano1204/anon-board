@@ -11,7 +11,7 @@ const fccTestingRoutes = require("./routes/fcctesting.js");
 const app = express();
 
 app.use("/public", express.static(path.join(__dirname, "/public")));
-app.use(cors({ origin: "*" })); // For FCC testing purposes only
+app.use(cors({ origin: "*" })); // Solo para FCC
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -27,13 +27,13 @@ app.route("/").get((req, res) => {
   res.sendFile(path.join(__dirname, "/views/index.html"));
 });
 
-// For FCC testing purposes
+// FCC testing
 fccTestingRoutes(app);
 
-// Routing for API
+// API routes
 apiRoutes(app);
 
-// 404 Not Found Middleware
+// Middleware 404
 app.use((req, res) => {
   res.status(404).type("text").send("Not Found");
 });
